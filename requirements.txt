@@ -1,0 +1,10 @@
+pandas
+numpy
+sklearn
+tensorflow
+jupyter
+jupytext
+matplotlib
+seaborn
+pydot
+graphviz

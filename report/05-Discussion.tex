@@ -1,0 +1,96 @@
+% The discussion section aims at interpreting the results in light of the
+% project's objectives. The most important goal of this section is to interpret
+% the results so that the reader is informed of the insight or answers that the
+% results provide. This section should also present an evaluation of the
+% particular approach taken by the group. For example: Based on the results, how
+% could the experimental procedure be improved? What additional, future work may
+% be warranted? What recommendations can be drawn?
+\subsection{Modello Finale}
+\subsubsection{Parametri di training}
+
+\paragraph{Numero di neuroni:} Il numero di neuroni del modello finale dei vari
+layer è mostrato nelle figure \ref{fig:modeltemplate} e \ref{fig:kerasModel}
+allo stesso modo del rate di dropout.
+
+\paragraph{Optimizer:} Come optimizer è stato utilizzato Adam con learning rate
+a \mbox{1e-4}, in modo da migliorare la stabilità del training ad eccezione
+dell'Embedding Keras che ha dimostrato un comportamento migliore con il learning
+rate di default (1e-3).
+
+\paragraph{Batchsize:} La batchsize è stata impostata a 256.
+
+\paragraph{Regolarizzazione:} Oltre ai layer Dropout è stato testata la
+regolarizzazione L2, tuttavia non ha portato a evidenti miglioramenti ed è
+quindi stata omessa. Inoltre è stato impostato l'earlystopping a monitoraggio
+dell'errore sul validation impostando pazienza a 3 epoche e il ripristino
+automatico dei pesi più performanti.
+
+\subsubsection{Layer aggiuntivi per il testo}
+
+Per quanto concerne i layer aggiuntivi in coda agli Embedding sono state
+valutati layer ricorsivi (RNN) in quanto ottimi per i dati sequenziali, come il
+testo, essendo in grado di "memorizzare" informazioni sugli elementi precedenti
+\cite{liang2017text}. Nello specifico sono stati valutati LSTM, GRU e
+Bidirectional LSTM. Queste ultime, permettono di catturare relazioni sia con
+parole precedenti che con parole successive \cite{schuster1997bidirectional}, ed
+essendosi dimostrate le più performanti compaiono nel modello finale.
+
+Sono stati inoltre valutati layer convoluzionali a precedere i layer RNN, ma non
+avendo migliorato le performance sono stati omessi nel modello finale.
+
+L'aggiunta di un layer GlobalMaxPooling1D a seguito delle Bi\_LSTM (figura
+\ref{fig:kerasModel}) si è dimostrata efficace sia per rendere la dimensionalità
+compatibile con i successivi layer densi che nell'effettuare un
+\textit{downsampling} riducendo dimensionalità e costi computazionali.
+
+\subsubsection{Dimensione Word Embedding}
+La dimensione del Word Embedding nel modello Keras è stata impostata a 50.
+
+\subsection{Pulizia del testo}
+
+Generalmente il pre-processing completo del testo non ha prodotto evidenti
+miglioramenti in termini di errore rispetto al pre-processing limitato,
+nonostante nel caso degli embedding pre-trainati permetta una maggiore copertura
+delle parole del vocabolario: da 32\% a 38\% per GloVe6B e da 42\% a 52\% per
+GloVe840B.
+
+Per quanto riguarda gli embedding ciò può essere dovuto al fatto che essendo in
+grado di catturare relazioni semantiche tra le parole non necessitano di un alto
+grado di pre-processing, ma siano anzi in grado di sfruttare le stopwords ad esempio.
+
+È invece inaspettato il risultato ottenuto combinando pre-processing totale a Bag
+of Word: l'errore è infatti leggermente più alto che con pre-processing
+limitato. Si deduce che le operazioni come rimozione di stopwords e
+lemmatizzazione non hanno offerto un contributo rilevante ma anzi un leggero
+peggioramento. 
+
+Si nota invece una generale diminuzione del numero di parametri (figura
+\ref{fig:resParam}) che in alcuni casi si traduce in una riduzione del tempo
+richiesto dalle epoche di train (figura \ref{fig:resEtime}).
+
+\subsection{Performance}
+Il modello più performante dal punto di vista dell'errore risulta il modello
+Keras, evidenziato in verde nella tabella \ref{tab:restable}. Seguono gli
+approcci Bag of Words e Tf-Idf; quest'ultimo tuttavia non sembra migliorare i
+risultati del più semplice BoW.
+
+Dal punto di vista computazionale invece, la durata delle epoche di Bag of Words
+è notevolmente minore rispetto a quella del modello Keras, ma considerando il
+numero di epoche eseguite ci accorgiamo che il tempo totale impiegato è simile:
+5000s per BoW e 5530s per Keras. È necessario ricordare che Keras è stato
+allenato con un learning rate maggiore che per BoW risultava invece in una
+scarsa stabilità.
+
+Sono invece gli Embedding GloVe pre-trainati a richiedere il minor tempo in una
+singola epoca di training (ignorando il modello senza feature testuali),
+avendo il numero minore di parametri allenabili come mostrato in figura
+\ref{fig:resParam}. Anch'esse tuttavia hanno richiesto numerose epoche per
+raggiungere performance accettabili. Inoltre non risultano esserci notevoli differenze di errore o costi
+computazionali tra i due embedding pre-trainati GloVe6B e GloVe840B.
+
+\subsection{BERT}
+
+Non è stato computazionalmente possibile questo modello sull'intero dataset ma
+ne è stata utilizzata una porzione (circa 200 mila istanze) completando solo 5
+epoche. Tuttavia considerando queste limitazioni i risultati sembrano
+promettenti.
