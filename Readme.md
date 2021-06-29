@@ -1,6 +1,6 @@
 # Mercari price suggestion challenge
 
-This is a project for the course Advanced Machine Learning from Università Milano Bicocca.
+This is a project for the course Advanced Machine Learning from University Milano Bicocca.
 
 It consists of the kaggle challenge https://www.kaggle.com/c/mercari-price-suggestion-challenge.
 
